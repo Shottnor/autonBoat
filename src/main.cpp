@@ -44,18 +44,35 @@ void setup() {
   Wire.begin();
   cmps.init();
   cmps.enableDefault();
-  cmps.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767};
+  cmps.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767}; //define standard calibration values for our compass
   cmps.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
 }
 
+float targetChange(float current, float wanted){
+  float opposite;
+  float targetChange;
+  if(wanted + 180 > 360){
+    opposite = wanted - 180;
+  }else{
+    opposite = wanted + 180;
+  }
+
+  if(current > opposite){
+    targetChange = wanted - current;
+  }else if (current < opposite){
+    targetChange = current - wanted;
+  }
+  return targetChange;
+}
+
 void loop() {
-  float targetLat = 50.351368;
-  float targetLon = 7.565410;
+  float targetLat = 50.351368; //target Latitude
+  float targetLon = 7.565410; //target Longitude
   float latitude, longitude, wantedHeading, currentHeading, distance;
   int sats;
-  currentPos(targetLat, targetLon, &latitude, &longitude, &wantedHeading, &distance, &sats);
-  cmps.read();
-  currentHeading = cmps.heading();  
+  currentPos(targetLat, targetLon, &latitude, &longitude, &wantedHeading, &distance, &sats); //pass data adresses to Position handler
+  cmps.read(); //read compass value
+  currentHeading = cmps.heading();  //store compass heading
   Serial.print("Distance: ");
   Serial.print(distance);
   Serial.print("    wanted: ");
@@ -65,7 +82,7 @@ void loop() {
   Serial.print("    sats: ");
   Serial.print(sats);
   Serial.print("    Change: ");
-  Serial.println(wantedHeading > currentHeading ? wantedHeading - currentHeading : currentHeading - wantedHeading);
+  Serial.println(targetChange(currentHeading, wantedHeading));
   
   delay(100);
   
