@@ -49,20 +49,26 @@ void setup() {
 }
 
 float targetChange(float current, float wanted){
-  float opposite;
+  
   float targetChange;
-  if(wanted + 180 > 360){
-    opposite = wanted - 180;
-  }else{
-    opposite = wanted + 180;
+  
+  if(current + wanted > 180){ //need to go right
+    if(current > wanted){
+      targetChange = current - wanted;
+    }else{
+      targetChange = wanted - current;
+    }
+
+  }else{ //need to go left
+    if(current < wanted){
+      targetChange = current - wanted;
+    }else{
+      targetChange = wanted - current;
+    }
   }
 
-  if(current > opposite){
-    targetChange = wanted - current;
-  }else if (current < opposite){
-    targetChange = current - wanted;
-  }
-  return targetChange;
+return targetChange;
+  
 }
 
 void loop() {
